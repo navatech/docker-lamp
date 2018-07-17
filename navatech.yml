@@ -1,0 +1,6 @@
+lamp:
+  image: navatech/lamp
+  ports:
+    - 80:80
+    - 3306:3306
+    
