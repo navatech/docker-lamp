@@ -1,0 +1,18 @@
+version: "3"
+services:
+  lamp:
+    image: navatech/docker-lamp:latest
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 400M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "80:80"
+      - "3306:3306"
+    networks:
+      - webnet
+networks:
+  webnet:

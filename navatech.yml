@@ -1,6 +1,0 @@
-lamp:
-  image: navatech/docker-lamp
-  ports:
-    - 80:80
-    - 3306:3306
-    

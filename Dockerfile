@@ -2,19 +2,14 @@ FROM ubuntu:xenial
 
 # Install packages
 ENV DEBIAN_FRONTEND noninteractive
-RUN echo "deb http://opensource.xtdv.net/ubuntu/ xenial main restricted" > /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-updates main restricted" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial universe" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-updates universe" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial multiverse" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-updates multiverse" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-backports main restricted universe multiverse" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-security main restricted" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-security universe" >> /etc/apt/sources.list.d/xtdv.list && \
-  echo "deb http://opensource.xtdv.net/ubuntu/ xenial-security multiverse" >> /etc/apt/sources.list.d/xtdv.list && \
-  apt-get update
-RUN apt-get -y install git supervisor apache2 software-properties-common mariadb-server php7.0 libapache2-mod-php7.0 php7.0-cli php7.0-common php7.0-mbstring php7.0-gd php7.0-intl php7.0-xml php7.0-mysql php7.0-mcrypt php7.0-zip && \
+RUN apt-get update -y && apt-get -y install software-properties-common git supervisor apache2 wget pwgen mariadb-server php7.0 php7.0-xdebug php7.0-curl libapache2-mod-php7.0 php7.0-cli php7.0-common php7.0-mbstring php7.0-gd php7.0-intl php7.0-xml php7.0-mysql php7.0-mcrypt php7.0-zip && \
   echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN wget https://composer.github.io/installer.sig -O - -q | tr -d '\n' > installer.sig && \
+  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+  php -r "if (hash_file('SHA384', 'composer-setup.php') === file_get_contents('installer.sig')) { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" && \
+  php composer-setup.php --filename=composer --install-dir=/usr/local/bin && \
+  php -r "unlink('composer-setup.php'); unlink('installer.sig');" && \
+  php composer.phar global require hirak/prestissimo
 
 # Add image configuration and scripts
 ADD start-apache2.sh /start-apache2.sh
@@ -22,7 +17,6 @@ ADD start-mysqld.sh /start-mysqld.sh
 ADD run.sh /run.sh
 RUN chmod 755 /*.sh
 ADD my.cnf /etc/mysql/conf.d/my.cnf
-ADD hosts /etc/hosts
 ADD supervisord-apache2.conf /etc/supervisor/conf.d/supervisord-apache2.conf
 ADD supervisord-mysqld.conf /etc/supervisor/conf.d/supervisord-mysqld.conf
 
