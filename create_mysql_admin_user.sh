@@ -13,7 +13,6 @@ done
 PASS=${MYSQL_PASS:-$(pwgen -s 12 1)}
 _word=$( [ ${MYSQL_PASS} ] && echo "preset" || echo "random" )
 echo "=> Creating MySQL admin user with ${_word} password"
-echo $PASS > mysql.pass
 mysql -uroot -e "CREATE USER 'admin'@'%' IDENTIFIED BY '$PASS'"
 mysql -uroot -e "GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION"
 
@@ -23,6 +22,7 @@ if [ -f /mysql-setup.sh ] ; then
 fi
 
 echo "=> Done!"
+echo $PASS > /mysql_password.txt
 
 echo "========================================================================"
 echo "You can now connect to this MySQL Server using:"
